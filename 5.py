@@ -82,7 +82,7 @@ for x in range (1, users_count):
     user_deleted_flag = tmp.find(USER_DELETED_TEXT)
     if user_deleted_flag != -1:
         bank_of_deleted_users = bank_of_deleted_users+1
-	continue
+        continue
     user_group = tmp.find(GROUP_LA2)
     if user_group == -1:
         continue
