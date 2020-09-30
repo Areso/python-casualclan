@@ -1,7 +1,7 @@
 # coding: UTF-8
 payload = {
-	"username": "Drakona", 
-	"password": "password", 
+	"username": "username",
+	"password": "password",
 	"sid": "f4cd64c990eb89e7c38b6975762808dc",
 	"redirect":"index.php",
 	"mode": "login",
@@ -22,19 +22,22 @@ authenticity_token = list(set(tree.xpath("//input[@name='sid']/@value")))[0]
 #print(authenticity_token)
 payload['auth_key'] = authenticity_token
 result = session_requests.post(
-	login_url, 
-	data = payload, 
+	login_url,
+	data = payload,
 	headers = dict(referer=login_url)
 )
 result = session_requests.get(
-	users_count_url, 
-	data = payload, 
+	users_count_url,
+	data = payload,
 	headers = dict(referer=login_url)
 )
-main_page = result.content
+main_page = result.content.decode()
 new_user  = "Новый пользователь"
 A = main_page.find(new_user)
-users_count = int(main_page[A+94:A+98])
+#print(A)
+#print(main_page)
+#print(main_page[A-16:A-12])
+users_count = int(main_page[A-16:A-12])
 #users_count = 80
 bank1 = 0
 bank_of_deleted_users = 0
@@ -65,17 +68,15 @@ MONTH_OF_REG = {'1':'янв', '2':'фев', '3':'мар', '4':'апр', '5':'м�
 class gamer(object):
     def __init__(self, date_of_reg):
         self.date_of_reg = date_of_reg
-#instancelist = [ MyClass() for i in range(29)]
-#instancelist[5].attr1 = 'whamma'
 #print(users_count)
 for x in range (1, users_count):
     #print(user_url + str(x))
     result = session_requests.get(
-	user_url + str(x), 
-	data = payload, 
+	user_url + str(x),
+	data = payload,
 	headers = dict(referer=login_url)
     )
-    tmp = result.content
+    tmp = result.content.decode()
     if x % 50 == 0:
         print(x)
     #print(tmp)
@@ -92,11 +93,14 @@ for x in range (1, users_count):
     #f.write(tmp)
     #f.close()
     age = tmp.find(AGE)
+    #print(tmp)
+    #print(age)
+    #print(tmp[age+41:age+43])
     #print(tmp[age+48:age+50])
     if age == -1:
         bank_of_la2_users_without_age = bank_of_la2_users_without_age + 1
     else:
-        bank_of_total_age = bank_of_total_age + int(tmp[age+48:age+50]) #!!!
+        bank_of_total_age = bank_of_total_age + int(tmp[age+41:age+43]) #!!!
     A = tmp.find(DATE_OF_REGISTRATION)
     DD = tmp[A+73:A+76]
     MM = tmp[A+77:A+83]
@@ -108,9 +112,11 @@ for x in range (1, users_count):
     #gamer(str(DD) + "-" + str(MM) + "-" + str(YY))
     #print(gamer.date_of_reg)
     #print(DD + " " + MM + " " + YY)
-avg_age = math.floor((bank_of_total_age / (bank_of_la2_users - bank_of_la2_users_without_age)) * 10)/10
-print('average age is ' + str(avg_age))
+
 print('total age is ' + str(bank_of_total_age))
 print('total la2 users is ' + str(bank_of_la2_users))
-print('total la2 users without age is ' + str(bank_of_la2_users_without_age))    
+print('total la2 users without age is ' + str(bank_of_la2_users_without_age))
 print('total deleted users is ' + str(bank_of_deleted_users))
+avg_age = math.floor((bank_of_total_age / (bank_of_la2_users - bank_of_la2_users_without_age)) * 10)/10
+print('average age is ' + str(avg_age))
+
